@@ -1,6 +1,47 @@
 # Retail AEM + Next.js POC Report
 
-Plan: `POC-PLAN.md`. Status: **Step 0 passes on VPN** through the internal dispatcher. The public host is blocked by Akamai.
+Plan: `POC-PLAN.md`. Status: **complete, 2026-11-11.** Run against the stage dispatcher (`http://dispatcher.stage.tirerack.net`) on VPN. Evidence screenshots are in `poc-evidence/`.
+
+## Answer
+
+**Yes, with a host contract.** Next.js can fetch Retail's AEM fragments on the server and render the header, footer, head libraries and SEO content so they look like production, with AEM fetched at most once a minute. What does not work is everything the header asks of the Java app: sign-in state, cart count, search suggestions, Tomcat-served icons, and a few page globals. Those are not AEM problems; they are the contract a new host must meet.
+
+| Question | Answer |
+| --- | --- |
+| 1. Can Next.js fetch the AEM fragments server-side? | Not through Akamai on `www.tirerack.com` (block page returned as HTTP 200). Yes through the internal dispatchers on VPN. |
+| 2. Do AEM's stylesheets and scripts work inside a Next.js document? | Yes, when kept scripts run as plain `<script>` elements in source order after stubs for `s`, `s_gi`, `dataLayer` and `sessionIsSet`. AEM's CSS restyles every plain host element. |
+| 3. How much of the header works without the Java app? | Look, layout and menus work. Sign-in state, cart count, search and the cart link do not: they call the Java app. |
+
+## Success criteria
+
+| Criterion | Result | Evidence |
+| --- | --- | --- |
+| Next.js fetches all four fragments server-side from the stage dispatcher | Yes | Steps 1 to 5 logs |
+| SEO blurb and a size-specific title in the server HTML of `/tires/[size]` | Yes | Step 2 |
+| Header and footer match production at 375 px and 1280 px | Yes, except the fixed header covers about 55 px of content and the Live Chat badge is a broken image | `poc-evidence/step5-*` |
+| Header menus and search open and close, by mouse and keyboard, `aria-expanded` matching production | Menus and account panel open by mouse. Search does not open (needs the Java app). Escape closes nothing and there is no `aria-expanded` or focus ring, but production is the same | Step 6 |
+| Every header call to the Java app listed with purpose and status | Yes, 5 kinds of call, all 404 from localhost | Step 6 |
+| AEM fetched at most once a minute per fragment, on a production build | Yes | Step 7 |
+| No browser request to a host outside the CSP list during load and interactions | Yes. Google Fonts (allowed) only; ResellerRatings and `http://` LivePerson images were blocked | Steps 4c and 6 |
+| Style leaks between AEM's CSS and the host page listed | Yes | `poc-evidence/step4c-style-probe-diffs.txt` |
+
+## What a production version would need
+
+1. **An AEM host the server can reach.** The internal dispatcher works on VPN; a deployed host needs network access to it, or an Akamai allow rule for server-side requests. `getAemFragment` must also treat the Akamai block page (HTTP 200) as a failure, which it does.
+2. **The Java app's session and cart contract**, proxied or reimplemented: `/rest/v1/UserProfileService/getUser`, `/rest/v1/cartService/getCartDetails`, `/includes/Components/querySuggestions.jsp`, `/cart/HoldingArea.jsp`, and Tomcat-served `/images/*`.
+3. **Page globals the JSP sets:** `s` and `s_gi` (or real Adobe Analytics), `dataLayer`, `sessionIsSet`, `phoneNumber`.
+4. **Header spacing:** reserve the fixed header's height, which AEM's page grid (`aem-GridColumn`) provides on AEM pages.
+5. **A style contract:** AEM's CSS restyles every bare element, so host-owned UI must be scoped or must adopt AEM's base styles.
+6. **Cache invalidation on publish:** the fetch can carry cache tags (as wholesale-next's `aemSdk.ts` does) so an AEM publish can call `revalidateTag`.
+7. **UsableNet** (or an approved replacement) restored; it was dropped for the POC only.
+8. **Accessibility gaps that already exist on production:** no skip link, no `aria-expanded`, Escape does not close menus, no visible focus ring.
+9. **In a `[partner]` app**, fragment fetching would move to `[partner]/layout.tsx`.
+
+## Notes on how the POC was built
+
+- Next 16.0.1 / React 19.2.0 (pinned to match wheelrack-next and wholesale-next; JFrog did not carry 16.4.6). Packages installed with `jf npm install`.
+- Kept scripts render as plain `<script>` elements rather than `next/script` (see Step 4c).
+- Hydration warnings from AEM changing the DOM are recorded, not suppressed.
 
 ## Step 0 — Server fetch check (2026-11-11)
 
@@ -141,3 +182,7 @@ The keyboard and ARIA gaps are the same on production, so they are existing AEM 
 | 5 | 4 s after that | HIT (fresh) | 0 |
 
 AEM is fetched at most once a minute per fragment, matching the Java tags. `Cache-Control: s-maxage=60, stale-while-revalidate` is sent, so a CDN in front would cache the same way.
+
+## Step 8 — Write-up (2026-11-11)
+
+**Done.** Summary, success criteria and production needs are at the top of this report.
