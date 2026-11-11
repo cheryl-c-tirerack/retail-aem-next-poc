@@ -54,3 +54,15 @@ Hosts from `retail_desktop` `TRUtil.getCQHostName()` (see `AEM-FINDINGS.md`). Pl
 **Result: Step 0 passes on VPN.** Both dispatchers serve the real fragments to a server-side request, with no Akamai block. Open question 1 is answered: use an internal dispatcher host. Open question 2 is half answered: the dispatchers are reachable from a laptop on VPN, but the one component path tried still returns 404, so component-by-path is not confirmed (the path may be wrong).
 
 The POC now needs VPN, which changes the plan's "no VPN" goal and the `AEM_HOST` decision.
+
+## Step 1 — Scaffold (2026-11-11)
+
+**Done.** `create-next-app` scaffolded into a temp folder and moved in. Packages installed with `jf npm install`. JFrog did not carry the template's Next 16.4.6, so versions are pinned to match wheelrack-next and wholesale-next: Next 16.0.1, React 19.2.0. The template's `cacheComponents` setting was removed (fed-standards). `getAemFragment` fetched the footer from the stage dispatcher: 27,469 characters, 172 ms; the reload was a cache hit in 3 ms.
+
+## Step 2 — SEO blurb route (2026-11-11)
+
+**Done.** `/tires/225-45-17` renders "About 225/45R17 Tires" in the server HTML with the title "225/45R17 Tires | Tire Rack". `/tires/abc` returns 404. A valid but unknown size (`255-35-19.5` → `en.seocontent.255.35.19_5.html`) returns 200 with an empty body from AEM, so the page shows only the host heading.
+
+## Step 3 — Footer (2026-11-11)
+
+**Done.** The footer fragment is in the root layout on every route. With `AEM_HOST` pointed at an unreachable address, every fetch timed out at about 5,000 ms and pages still rendered (200) with an empty footer slot. In dev, the 404 page draws the footer client-side from the RSC payload rather than in the server HTML.
