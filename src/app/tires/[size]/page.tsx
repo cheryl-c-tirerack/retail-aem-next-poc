@@ -4,6 +4,11 @@ import { notFound } from 'next/navigation';
 import { getAemFragment } from '@/lib/aem/getAemFragment';
 import { formatTireSize, parseTireSize, seoContentPath } from '@/lib/aem/seoSelector';
 
+// No sizes prebuilt: each size renders on first request, then is cached and revalidated (ISR).
+export async function generateStaticParams(): Promise<{ size: string }[]> {
+  return [];
+}
+
 export async function generateMetadata({ params }: PageProps<'/tires/[size]'>): Promise<Metadata> {
   const { size } = await params;
   const tireSize = parseTireSize(size);
