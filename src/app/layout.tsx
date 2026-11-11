@@ -1,15 +1,18 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+
+import { getAemFragment } from '@/lib/aem/getAemFragment';
+
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
@@ -17,10 +20,17 @@ export const metadata: Metadata = {
   description: 'Retail AEM + Next.js POC',
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<'/'>) {
+  // Inline scripts inside the footer HTML do not run when set through dangerouslySetInnerHTML.
+  // They stay inert until the keep list loads the allowed ones (Step 4c).
+  const footer = await getAemFragment('en.footerResponsive.html');
+
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <main>{children}</main>
+        {footer.ok && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}
+      </body>
     </html>
   );
 }

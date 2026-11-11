@@ -1,17 +1,12 @@
-import { getAemFragment } from '@/lib/aem/getAemFragment';
+import Link from 'next/link';
 
-// Step 1 check: proves the server can fetch an AEM fragment. Replaced by real content in later steps.
-export default async function Home() {
-  const footer = await getAemFragment('en.footerResponsive.html');
-
+export default function Home() {
   return (
-    <main>
+    <>
       <h1>Retail AEM POC</h1>
       <p>
-        {footer.ok
-          ? `Footer fragment fetched: ${footer.html.length} characters.`
-          : `Footer fetch failed: ${footer.status}`}
+        <Link href="/tires/225-45-17">225/45R17 tires</Link>
       </p>
-    </main>
+    </>
   );
 }
