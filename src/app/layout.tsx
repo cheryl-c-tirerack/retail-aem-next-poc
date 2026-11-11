@@ -1,19 +1,9 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
 
+import { parseFragment } from '@/lib/aem/extractScripts';
 import { getAemFragment } from '@/lib/aem/getAemFragment';
 
 import './globals.css';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Tire Rack',
@@ -21,15 +11,18 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
-  // Inline scripts inside the footer HTML do not run when set through dangerouslySetInnerHTML.
-  // They stay inert until the keep list loads the allowed ones (Step 4c).
-  const footer = await getAemFragment('en.footerResponsive.html');
+  const footerResult = await getAemFragment('en.footerResponsive.html');
+  const footer = footerResult.ok ? parseFragment(footerResult.html, 'footer') : null;
+
+  if (footer) {
+    console.info(`[aem] footer kept=${footer.kept.map((tag) => tag.id).join(',')} dropped=${footer.dropped.length}`);
+  }
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en">
       <body>
         <main>{children}</main>
-        {footer.ok && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}
+        {footer && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}
       </body>
     </html>
   );
