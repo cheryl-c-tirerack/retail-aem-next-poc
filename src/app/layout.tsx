@@ -41,11 +41,13 @@ function AemKeptTags({ tags }: { tags: KeptTag[] }) {
 }
 
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
-  const [headResult, footerResult] = await Promise.all([
+  const [headResult, headerResult, footerResult] = await Promise.all([
     getAemFragment('en.rsResponsiveJSincludes.html'),
+    getAemFragment('en.headerResponsive.html'),
     getAemFragment('en.footerResponsive.html'),
   ]);
   const head = headResult.ok ? parseFragment(headResult.html, 'head') : null;
+  const header = headerResult.ok ? parseFragment(headerResult.html, 'header') : null;
   const footer = footerResult.ok ? parseFragment(footerResult.html, 'footer') : null;
 
   return (
@@ -55,7 +57,10 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
         {head && <AemKeptTags tags={head.kept} />}
       </head>
       <body>
-        <main>{children}</main>
+        {header && <div data-aem="header" dangerouslySetInnerHTML={{ __html: header.html }} />}
+        {header && <AemKeptTags tags={header.kept} />}
+        {/* AEM's header has no skip link (neither does the JSP host), so <main> has no skip target to match. */}
+        <main id="main-content">{children}</main>
         {footer && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}
         {footer && <AemKeptTags tags={footer.kept} />}
       </body>
