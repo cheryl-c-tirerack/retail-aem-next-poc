@@ -7,9 +7,7 @@ export default function Home() {
         <Link href="/tires/225-45-17">225/45R17 tires</Link> — SEO content block
       </li>
       <li>
-        {/* Hard navigation: the AEM block's scripts (carousel) only run on a full page load, not a
-            client-side route change. */}
-        <a href="/suspension/lowering">A Look at Lowering</a> — AEM content block in the app shell
+        <Link href="/suspension/lowering">A Look at Lowering</Link> — AEM content block in the app shell
       </li>
       <li>
         <Link href="/welcome-modal">Welcome modal</Link> — AEM content fragment
