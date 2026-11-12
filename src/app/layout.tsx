@@ -52,18 +52,21 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
   const footer = footerResult.ok ? parseFragment(footerResult.html, 'footer') : null;
 
   return (
-    <html lang="en">
+    // AEM's clientlibs add an A/B-test class (e.g. `ab-test-a`) to <html> and mutate <body> before
+    // React hydrates. suppressHydrationWarning silences the resulting attribute mismatch on these
+    // two elements only (not their children) — it is the expected third-party-script case.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script id="aem-stubs" dangerouslySetInnerHTML={{ __html: AEM_STUBS }} />
         {head && <AemKeptTags tags={head.kept} />}
       </head>
-      <body>
-        {header && <div data-aem="header" dangerouslySetInnerHTML={{ __html: header.html }} />}
+      <body suppressHydrationWarning>
+        {header && <div data-aem="header" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: header.html }} />}
         {header && <AemKeptTags tags={header.kept} />}
         <HeaderSpacer />
         {/* AEM's header has no skip link (neither does the JSP host), so <main> has no skip target to match. */}
         <main id="main-content">{children}</main>
-        {footer && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}
+        {footer && <div data-aem="footer" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: footer.html }} />}
         {footer && <AemKeptTags tags={footer.kept} />}
       </body>
     </html>

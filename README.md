@@ -95,7 +95,7 @@ Next.js answers the URLs AEM's header calls — see `../retail-aem-next-poc-docs
 | Footer phone number is not filled in | `phoneNumber is not defined`: the JSP sets this global; it is not stubbed |
 | Console error `Cannot read properties of undefined (reading 'auth')` | The kept Google-login script also calls the Apple sign-in script, which is dropped on purpose |
 | Console `SyntaxError: Unexpected token '<'` (twice) | jQuery evaluates the 404 pages from the `/rest/v1/...` calls as script |
-| React hydration warnings in the console | AEM scripts change `<html>`, `<body>`, header and footer markup before React hydrates; recorded, not suppressed |
+| React hydration warnings in the console | AEM's clientlibs mutate the DOM before React hydrates — an A/B-test class on `<html>`, changes to `<body>`, and edits to the header/footer markup. `suppressHydrationWarning` is set on `<html>`, `<body>`, and the two `data-aem` header/footer wrappers (the standard third-party-script fix); it affects only those elements, not the rest of the tree |
 
 ### Same on production (existing AEM gaps, not caused by this app)
 
