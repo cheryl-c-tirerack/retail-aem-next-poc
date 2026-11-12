@@ -113,6 +113,7 @@ Next.js answers the URLs AEM's header calls — see `../retail-aem-next-poc-docs
 | Cart button → cart page | Goes to `/cart/HoldingArea.jsp`; no cart service exists in the new stack |
 | Search results, brand/size match on Enter | Needs the service token / BFF catalog endpoints |
 | Header and footer links to other site pages | Those pages are a later migration phase |
+| Video on whole AEM pages (e.g. `/aem/en/wheels`) | The iframe needs two Java/Tomcat pieces: `/rest/v1/videoLookUp/id/{id}` (`VideoService.java`) for the video metadata, and `/videos/amp/player.jsp` (a Bitmovin/AMP player needing a Vault license key). Both 404 everywhere we can reach |
 
 ### Broken or different on the page
 
