@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "api:orval": "node ./api/run-orval.mjs",
+    "api:updateDev": "cross-env API_ENV=dev npm run api:orval",
+    "api:updateQa": "cross-env API_ENV=qa npm run api:orval"
   },
   "dependencies": {
     "next": "16.0.1",
@@ -17,8 +20,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
+    "orval": "^6.31.0",
+    "prettier": "^3.3.3",
     "typescript": "^5"
   }
 }
