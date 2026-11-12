@@ -19,7 +19,7 @@ const hrefIncludes = (text: string) => (tag: AemTag) => tag.kind === 'stylesheet
 
 /**
  * The only AEM tags the POC renders. Everything else in the fragments is dropped,
- * including anything AEM adds later (Adobe Launch, new vendors). See POC-PLAN.md, Tags to keep.
+ * including anything AEM adds later (Adobe Launch, new vendors). See retail-aem-next-poc-docs/POC-PLAN.md, Tags to keep.
  */
 export const KEEP_LIST: readonly KeepRule[] = [
   { name: 'aem-web-app-base-url', fragment: 'head', match: codeIncludes('webApplicationBaseURL') },

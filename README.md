@@ -2,10 +2,15 @@
 
 A Next.js app that renders Retail's AEM header, footer, head libraries and SEO content the way `retail_desktop` does: it fetches finished HTML fragments from AEM on the server and places them in the page.
 
-- Plan: [POC-PLAN.md](POC-PLAN.md)
-- Results: [POC-REPORT.md](POC-REPORT.md)
-- Background: [AEM-FINDINGS.md](AEM-FINDINGS.md)
-- Screenshots: [poc-evidence/](poc-evidence/)
+## Docs
+
+All POC docs live in the sibling folder **`../retail-aem-next-poc-docs/`**, not in this repo. New plans, reports and reviews go there too.
+
+- Plan: [POC-PLAN.md](../retail-aem-next-poc-docs/POC-PLAN.md)
+- Results: [POC-REPORT.md](../retail-aem-next-poc-docs/POC-REPORT.md)
+- Background: [AEM-FINDINGS.md](../retail-aem-next-poc-docs/AEM-FINDINGS.md)
+- Plan review: [plan-reviews/](../retail-aem-next-poc-docs/plan-reviews/)
+- Screenshots (stay in this repo): [poc-evidence/](poc-evidence/)
 
 ## Run it
 
@@ -45,7 +50,7 @@ Asset paths starting with these are proxied to AEM:
 
 ## What does not work
 
-Details and evidence for each item are in [POC-REPORT.md](POC-REPORT.md).
+Details and evidence for each item are in [POC-REPORT.md](../retail-aem-next-poc-docs/POC-REPORT.md).
 
 ### Needs the Java app (not running here)
 

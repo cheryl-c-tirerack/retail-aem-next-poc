@@ -4,7 +4,7 @@ const AEM_CONTENT_ROOT = '/content/tirerack/desktop/';
 const REVALIDATE_SECONDS = 60;
 const TIMEOUT_MS = 5000;
 
-// Akamai serves this page with HTTP 200 when it blocks a request (see POC-REPORT.md, Step 0).
+// Akamai serves this page with HTTP 200 when it blocks a request (see retail-aem-next-poc-docs/POC-REPORT.md, Step 0).
 const AKAMAI_BLOCK_MARKER = 'This page is currently unavailable';
 
 export type AemFragmentResult =
