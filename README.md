@@ -79,6 +79,17 @@ Asset paths starting with these are proxied to AEM:
 
 `/images/...` (served by Tomcat on the real site) redirects the browser to `https://static.vordn.com/images/...`. It is a redirect, not a proxy, because Akamai blocks server-side requests to that host but serves browsers.
 
+## BFF endpoints we hit
+
+Calls go to the retail BFF (`bff-retail-desktop`) at `BFF_URL` (dev: `https://dev.api.tirerack.com`), server-side only. The client is `src/lib/bff/client.ts`.
+
+| Endpoint | Where in code | Used for | Status |
+| --- | --- | --- | --- |
+| `GET /api/v1/vehicles/makes?year=` | `src/lib/bff/vehicles.ts` → `getMakes()` | Vehicle makes for a year | ✅ Real, verified against dev; no auth needed |
+| `GET /api/v1/vehicles/models?year=&make=` | `src/lib/bff/vehicles.ts` → `getModels()` | Vehicle models for a year + make | ✅ Real, verified against dev; no auth needed |
+
+These two back the search-on-Enter "Make Model" match (`getTireMakeModels.jsp`). They are **built and proven but not yet wired into a route** — the make/model contract still returns `[]` (it needs a single yearless list the BFF doesn't expose yet; see [JAVA-CONTRACT-PLAN.md](../retail-aem-next-poc-docs/JAVA-CONTRACT-PLAN.md), Phase 2). Everything else the header calls is stubbed, not a BFF call — see below.
+
 ## What does not work
 
 Details and evidence for each item are in [POC-REPORT.md](../retail-aem-next-poc-docs/POC-REPORT.md).
