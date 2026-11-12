@@ -11,7 +11,10 @@ function loginXml(status: 'success' | 'failed'): Response {
 
 export async function POST(request: Request): Promise<Response> {
   const form = await request.formData();
-  const username = (form.get('emailLogin') ?? form.get('username') ?? form.get('email') ?? '').toString().trim();
+  // The account panel's #newLoginFormMenu posts emailaddress + pass1; other AEM login forms use email.
+  const username = (form.get('emailaddress') ?? form.get('email') ?? form.get('emailLogin') ?? form.get('username') ?? '')
+    .toString()
+    .trim();
 
   if (!username) {
     return loginXml('failed');

@@ -52,15 +52,24 @@ Asset paths starting with these are proxied to AEM:
 
 Details and evidence for each item are in [POC-REPORT.md](../retail-aem-next-poc-docs/POC-REPORT.md).
 
-### Needs the Java app (not running here)
+### Now handled by Next.js (Java migration, Phase 1)
+
+Next.js answers the URLs AEM's header calls — see `../retail-aem-next-poc-docs/JAVA-CONTRACT-PLAN.md`.
+
+| What | Status |
+| --- | --- |
+| Search opens, with suggestions | ✅ Works (`querySuggestions.jsp` route) |
+| Signed-in vs guest header | ✅ Works — sign in via the account panel (any email + password); `/poc/sign-out` resets. Login is a **stub** (no real auth call yet) |
+| Cart count | 🟡 Shows `0` (no cart service exists yet) |
+| Signed-in name | 🟡 Stub name "Test User" (the token carries no name) |
+
+### Still needs backend work (Phase 2) or a later phase
 
 | What | Why |
 | --- | --- |
-| Cart button | Goes to `/cart/HoldingArea.jsp` → 404 |
-| Search does not open | Waits for `/includes/Components/querySuggestions.jsp` → 404 |
-| "Hello, Sign In" state | Calls `/rest/v1/UserProfileService/getUser` → 404 |
-| Cart count | Calls `/rest/v1/cartService/getCartDetails` → 404 |
-| Header and footer links to other site pages | Those pages live in the Java app or AEM pages → 404 |
+| Cart button → cart page | Goes to `/cart/HoldingArea.jsp`; no cart service exists in the new stack |
+| Search results, brand/size match on Enter | Needs the service token / BFF catalog endpoints |
+| Header and footer links to other site pages | Those pages are a later migration phase |
 
 ### Broken or different on the page
 
