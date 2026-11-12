@@ -6,6 +6,7 @@ A Next.js app that renders Retail's AEM header, footer, head libraries and SEO c
 
 All POC docs live in the sibling folder **`../retail-aem-next-poc-docs/`**, not in this repo. New plans, reports and reviews go there too.
 
+- Architecture: [ARCHITECTURE.md](../retail-aem-next-poc-docs/ARCHITECTURE.md) — how each AEM piece is fetched, stage vs prod, Java functions still needed
 - Plan: [POC-PLAN.md](../retail-aem-next-poc-docs/POC-PLAN.md)
 - Results: [POC-REPORT.md](../retail-aem-next-poc-docs/POC-REPORT.md)
 - Background: [AEM-FINDINGS.md](../retail-aem-next-poc-docs/AEM-FINDINGS.md)
