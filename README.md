@@ -39,6 +39,18 @@ All on http://localhost:3000.
 | http://localhost:3000/tires/255-35-19.5 | Valid shape but AEM has no blurb, so only the heading shows |
 | http://localhost:3000/tires/abc | 404 "Tire size not found" (on purpose) |
 | http://localhost:3000/style-probe | Plain HTML elements with AEM's CSS applied, to show how it restyles them |
+| http://localhost:3000/suspension/lowering | AEM "A Look at Lowering" content block rendered in the app shell |
+| http://localhost:3000/welcome-modal | AEM welcome-modal content fragment rendered in the app shell |
+| http://localhost:3000/aem/en/wheels | A whole AEM page ("Wheels & Rims") served as-is through the `/aem/[...path]` proxy |
+| http://localhost:3000/sitemap.xml | AEM-generated sitemap, passed straight through |
+
+These are the three ways AEM content reaches the app, matching how `retail_desktop` pulls it:
+
+- **Fragments in the shell** (`getAemFragment` + `AemContent`) — header, footer, JS includes, the tire SEO blurb, the suspension block, the welcome modal. Same as the Java `<tirerack:header/>`, `<tirerack:seocontenttsr/>` and `<tirerack:CQResource/>` tags.
+- **Whole AEM pages** (`/aem/[...path]`) — pages that ship their own `<html>`/header/footer, returned as-is.
+- **XML** (`/sitemap.xml`).
+
+Not on the stage dispatcher (so not wired up, but reachable via the same routes in prod): the `whytirerack` test-track block, `wheels/by-brand`, `customer-support/sales-form`, and `google` pages all return 404/403 on stage.
 
 Asset paths starting with these are proxied to AEM:
 
