@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { aemEnvFor, aemHostFor, routeAssetsToProd } from './aemSources';
+
 const AEM_CONTENT_ROOT = '/content/tirerack/desktop/';
 const REVALIDATE_SECONDS = 60;
 const TIMEOUT_MS = 5000;
@@ -13,14 +15,16 @@ export type AemFragmentResult =
 
 /**
  * Fetches a rendered AEM HTML fragment on the server, the way
- * CQServiceHandlerImpl.invokeCQ does for retail_desktop.
+ * CQServiceHandlerImpl.invokeCQ does for retail_desktop. Stage or prod is picked per path
+ * (see aemSources.ts).
  * @param path - path under /content/tirerack/desktop/, e.g. 'en.headerResponsive.html'
  */
 export async function getAemFragment(path: string): Promise<AemFragmentResult> {
-  const host = process.env.AEM_HOST;
+  const env = aemEnvFor(path);
+  const host = aemHostFor(env);
 
   if (!host) {
-    console.error('[aem] AEM_HOST is not set');
+    console.error(`[aem] AEM host for ${env} is not set (AEM_HOST_STAGE / AEM_HOST_PROD)`);
     return { ok: false, status: 'config', path };
   }
 
@@ -46,8 +50,8 @@ export async function getAemFragment(path: string): Promise<AemFragmentResult> {
       return { ok: false, status: 'blocked', path };
     }
 
-    console.info(`[aem] ${path} status=${response.status} bytes=${html.length} ms=${elapsed()}`);
-    return { ok: true, html };
+    console.info(`[aem] ${path} env=${env} status=${response.status} bytes=${html.length} ms=${elapsed()}`);
+    return { ok: true, html: env === 'prod' ? routeAssetsToProd(html) : html };
   } catch (error) {
     const status = error instanceof DOMException && error.name === 'TimeoutError' ? 'timeout' : 'network';
     console.warn(`[aem] ${path} status=${status} ms=${elapsed()}`);

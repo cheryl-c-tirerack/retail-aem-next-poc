@@ -1,13 +1,6 @@
 import type { NextConfig } from 'next';
 
-// AEM fragments and pages reference assets as root-relative paths; forward those to the AEM host.
-// /content/tirerack covers AEM core-component image renditions (…/_jcr_content/…/*.coreimg.*.png).
-const AEM_ASSET_PATHS = [
-  '/etc.clientlibs/:path*',
-  '/etc/designs/:path*',
-  '/content/dam/:path*',
-  '/content/tirerack/:path*',
-];
+import { AEM_ASSET_PREFIXES, PROD_ASSET_PREFIX } from './src/lib/aem/aemSources';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -53,17 +46,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // AEM HTML references assets (clientlibs, DAM, core-image renditions under /content/tirerack) as
+  // root-relative paths; forward those to AEM. Stage pages use the plain paths; prod pages have them
+  // moved under /aem-prod by getAemFragment, so they load from the same dispatcher as the page.
   async rewrites() {
-    const aemHost = process.env.AEM_HOST;
+    const stageHost = process.env.AEM_HOST_STAGE;
+    const prodHost = process.env.AEM_HOST_PROD;
 
-    if (!aemHost) {
-      return [];
-    }
-
-    return AEM_ASSET_PATHS.map((source) => ({
-      source,
-      destination: `${aemHost}${source}`,
-    }));
+    return AEM_ASSET_PREFIXES.flatMap((prefix) => [
+      ...(stageHost ? [{ source: `/${prefix}/:path*`, destination: `${stageHost}/${prefix}/:path*` }] : []),
+      ...(prodHost
+        ? [{ source: `${PROD_ASSET_PREFIX}/${prefix}/:path*`, destination: `${prodHost}/${prefix}/:path*` }]
+        : []),
+    ]);
   },
 };
 

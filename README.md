@@ -25,7 +25,8 @@ npm run dev
 `.env.local` must contain:
 
 ```
-AEM_HOST=http://dispatcher.stage.tirerack.net
+AEM_HOST_STAGE=http://dispatcher.stage.tirerack.net
+AEM_HOST_PROD=http://dispatchers-int.tirerack.com
 ```
 
 ## How to deploy
@@ -41,10 +42,12 @@ npm run start      # serves on port 3000
 Requirements wherever it runs:
 
 - **Node 22** (match local dev).
-- **Network to an internal AEM dispatcher** — the host must reach `AEM_HOST`; the public site blocks server-side fetches. On a laptop that means VPN; on a server it means the dispatcher is routable from that box.
-- **Env vars** (baked at build time, like the sibling Next apps — not injected at runtime): `AEM_HOST` (AEM dispatcher) and `BFF_URL` (retail BFF). Point these at the right environment before `npm run build`.
+- **Network to an internal AEM dispatcher** — the host must reach `AEM_HOST_STAGE` and `AEM_HOST_PROD`; the public site blocks server-side fetches. On a laptop that means VPN; on a server it means the dispatcher is routable from that box.
+- **Env vars** (baked at build time, like the sibling Next apps — not injected at runtime): `AEM_HOST_STAGE` + `AEM_HOST_PROD` (AEM dispatchers) and `BFF_URL` (retail BFF). Point these at the right environment before `npm run build`.
 
 For a container, use a standard Node 22 image, `npm run build`, then `npm run start`. No special `output` mode is set.
+
+Set to auto build and push to server on push to main
 
 ## URLs that work
 
@@ -77,6 +80,8 @@ Asset paths starting with these are proxied to AEM:
 - `/etc/designs/...`
 - `/content/dam/...`
 - `/content/tirerack/...` (AEM core-component image renditions, e.g. `*.coreimg.*.png`)
+
+Each page or fragment comes from **stage** unless its path is listed in `PROD_PATHS` in `src/lib/aem/aemSources.ts` (today: `en/wheels.html`). For prod pages, `getAemFragment` moves those asset paths under `/aem-prod/...`, and `next.config.ts` proxies `/aem-prod/...` to `AEM_HOST_PROD`, so the page's images, CSS and JS load from prod too.
 
 `/images/...` (served by Tomcat on the real site) redirects the browser to `https://static.vordn.com/images/...`. It is a redirect, not a proxy, because Akamai blocks server-side requests to that host but serves browsers.
 
@@ -113,6 +118,7 @@ Next.js answers the URLs AEM's header calls — see `../retail-aem-next-poc-docs
 | Cart button → cart page | Goes to `/cart/HoldingArea.jsp`; no cart service exists in the new stack |
 | Search results, brand/size match on Enter | Needs the service token / BFF catalog endpoints |
 | Header and footer links to other site pages | Those pages are a later migration phase |
+| "Wheel Deals" promo carousel on whole AEM pages (e.g. `/aem/en/wheels`) | AEM ships an empty box; its script loads the slides from the Java JSP `/includes/Components/promos.jsp` (promo database via `PromoAdminBean`). On localhost the page sends that call to `https://www.tirerack.com`, which our CSP blocks and whose CORS allowlist rejects `localhost:3000`. No internal host serves the JSP (404 on both dispatchers) and the BFF has no promos API |
 | Video on whole AEM pages (e.g. `/aem/en/wheels`) | The iframe needs two Java/Tomcat pieces: `/rest/v1/videoLookUp/id/{id}` (`VideoService.java`) for the video metadata, and `/videos/amp/player.jsp` (a Bitmovin/AMP player needing a Vault license key). Both 404 everywhere we can reach |
 
 ### Broken or different on the page
