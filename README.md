@@ -76,6 +76,7 @@ Asset paths starting with these are proxied to AEM:
 - `/etc.clientlibs/...`
 - `/etc/designs/...`
 - `/content/dam/...`
+- `/content/tirerack/...` (AEM core-component image renditions, e.g. `*.coreimg.*.png`)
 
 `/images/...` (served by Tomcat on the real site) redirects the browser to `https://static.vordn.com/images/...`. It is a redirect, not a proxy, because Akamai blocks server-side requests to that host but serves browsers.
 

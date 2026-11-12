@@ -1,7 +1,13 @@
 import type { NextConfig } from 'next';
 
-// AEM fragments reference assets as root-relative paths; forward those to the AEM host.
-const AEM_ASSET_PATHS = ['/etc.clientlibs/:path*', '/etc/designs/:path*', '/content/dam/:path*'];
+// AEM fragments and pages reference assets as root-relative paths; forward those to the AEM host.
+// /content/tirerack covers AEM core-component image renditions (…/_jcr_content/…/*.coreimg.*.png).
+const AEM_ASSET_PATHS = [
+  '/etc.clientlibs/:path*',
+  '/etc/designs/:path*',
+  '/content/dam/:path*',
+  '/content/tirerack/:path*',
+];
 
 const isDev = process.env.NODE_ENV === 'development';
 
