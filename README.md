@@ -28,6 +28,24 @@ npm run dev
 AEM_HOST=http://dispatcher.stage.tirerack.net
 ```
 
+## How to deploy
+
+This is a standard Next.js (Node) app — there is no pipeline yet (it's a POC). To run it like production:
+
+```bash
+jf npm install
+npm run build
+npm run start      # serves on port 3000
+```
+
+Requirements wherever it runs:
+
+- **Node 22** (match local dev).
+- **Network to an internal AEM dispatcher** — the host must reach `AEM_HOST`; the public site blocks server-side fetches. On a laptop that means VPN; on a server it means the dispatcher is routable from that box.
+- **Env vars** (baked at build time, like the sibling Next apps — not injected at runtime): `AEM_HOST` (AEM dispatcher) and `BFF_URL` (retail BFF). Point these at the right environment before `npm run build`.
+
+For a container, use a standard Node 22 image, `npm run build`, then `npm run start`. No special `output` mode is set.
+
 ## URLs that work
 
 All on http://localhost:3000.
