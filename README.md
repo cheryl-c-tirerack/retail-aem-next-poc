@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Retail AEM + Next.js POC
 
-## Getting Started
+A Next.js app that renders Retail's AEM header, footer, head libraries and SEO content the way `retail_desktop` does: it fetches finished HTML fragments from AEM on the server and places them in the page.
 
-First, run the development server:
+- Plan: [POC-PLAN.md](POC-PLAN.md)
+- Results: [POC-REPORT.md](POC-REPORT.md)
+- Background: [AEM-FINDINGS.md](AEM-FINDINGS.md)
+- Screenshots: [poc-evidence/](poc-evidence/)
+
+## Run it
+
+You must be on **VPN**. The app fetches from the internal stage dispatcher; the public site blocks server-side requests.
 
 ```bash
+jf npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` must contain:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+AEM_HOST=http://dispatcher.stage.tirerack.net
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## URLs that work
 
-## Learn More
+All on http://localhost:3000.
 
-To learn more about Next.js, take a look at the following resources:
+| URL | What you should see |
+| --- | --- |
+| http://localhost:3000/ | AEM header and footer, with a link to a tire size |
+| http://localhost:3000/tires/225-45-17 | Header, the "About 225/45R17 Tires" blurb, footer |
+| http://localhost:3000/tires/235-40-18 | Any real size works the same way; only sizes AEM has a blurb for show text |
+| http://localhost:3000/tires/255-35-19.5 | Valid shape but AEM has no blurb, so only the heading shows |
+| http://localhost:3000/tires/abc | 404 "Tire size not found" (on purpose) |
+| http://localhost:3000/style-probe | Plain HTML elements with AEM's CSS applied, to show how it restyles them |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Asset paths starting with these are proxied to AEM:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/etc.clientlibs/...`
+- `/etc/designs/...`
+- `/content/dam/...`
 
-## Deploy on Vercel
+`/images/...` (served by Tomcat on the real site) redirects the browser to `https://static.vordn.com/images/...`. It is a redirect, not a proxy, because Akamai blocks server-side requests to that host but serves browsers.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What does not work
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Details and evidence for each item are in [POC-REPORT.md](POC-REPORT.md).
+
+### Needs the Java app (not running here)
+
+| What | Why |
+| --- | --- |
+| Cart button | Goes to `/cart/HoldingArea.jsp` → 404 |
+| Search does not open | Waits for `/includes/Components/querySuggestions.jsp` → 404 |
+| "Hello, Sign In" state | Calls `/rest/v1/UserProfileService/getUser` → 404 |
+| Cart count | Calls `/rest/v1/cartService/getCartDetails` → 404 |
+| Header and footer links to other site pages | Those pages live in the Java app or AEM pages → 404 |
+
+### Broken or different on the page
+
+| What | Why |
+| --- | --- |
+| Fixed header covers about 55 px of the page content | On AEM pages, AEM's page grid (`aem-GridColumn`) reserves the header height; the bare fragment does not |
+| Live Chat badge shows, but chat itself is not available | LivePerson (the chat service) is dropped |
+| ResellerRatings seal in the footer is missing | A third-party image; the CSP blocks it |
+| Host page elements look like AEM (Lato font, uppercase `h1`, no list bullets, unstyled buttons) | AEM's global CSS restyles every plain element; see `/style-probe` |
+| Footer phone number is not filled in | `phoneNumber is not defined`: the JSP sets this global; it is not stubbed |
+| Console error `Cannot read properties of undefined (reading 'auth')` | The kept Google-login script also calls the Apple sign-in script, which is dropped on purpose |
+| Console `SyntaxError: Unexpected token '<'` (twice) | jQuery evaluates the 404 pages from the `/rest/v1/...` calls as script |
+| React hydration warnings in the console | AEM scripts change `<html>`, `<body>`, header and footer markup before React hydrates; recorded, not suppressed |
+
+### Same on production (existing AEM gaps, not caused by this app)
+
+- No skip link
+- No `aria-expanded` on header menus and buttons
+- Escape does not close the menu or the account panel
+- No visible focus ring when tabbing through the header
