@@ -1,0 +1,31 @@
+/*
+ * Base page layout for the POC host page.
+ *
+ * The AEM header is `position: fixed`, so page content would otherwise start at the very top and
+ * hide beneath it. HeaderSpacer measures the live header and sets --aem-header-h; we pad <main> by
+ * that (with a sensible fallback for the first paint, before the measurement lands). We also give
+ * the content a max width and side gutters so host-page content reads like a real page instead of
+ * being jammed against the window edge. AEM's own header/footer fragments are full-bleed and are
+ * not affected — only <main>.
+ */
+
+:root {
+  --aem-header-h: 174px;
+  --page-max-width: 1200px;
+  --page-gutter: 24px;
+}
+
+main#main-content {
+  box-sizing: border-box;
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  padding-top: calc(var(--aem-header-h) + 24px);
+  padding-right: var(--page-gutter);
+  padding-bottom: 48px;
+  padding-left: var(--page-gutter);
+}
+
+/* Anchor jumps land below the fixed header, not under it. */
+html {
+  scroll-padding-top: calc(var(--aem-header-h) + 16px);
+}

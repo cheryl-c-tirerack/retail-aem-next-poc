@@ -5,6 +5,7 @@ import { type KeptTag, parseFragment } from '@/lib/aem/extractScripts';
 import { getAemFragment } from '@/lib/aem/getAemFragment';
 
 import { AEM_STUBS } from './aem-stubs';
+import { HeaderSpacer } from './HeaderSpacer.client';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -59,6 +60,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       <body>
         {header && <div data-aem="header" dangerouslySetInnerHTML={{ __html: header.html }} />}
         {header && <AemKeptTags tags={header.kept} />}
+        <HeaderSpacer />
         {/* AEM's header has no skip link (neither does the JSP host), so <main> has no skip target to match. */}
         <main id="main-content">{children}</main>
         {footer && <div data-aem="footer" dangerouslySetInnerHTML={{ __html: footer.html }} />}

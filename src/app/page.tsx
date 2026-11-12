@@ -2,11 +2,8 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <>
-      <h1>Retail AEM POC</h1>
-      <p>
-        <Link href="/tires/225-45-17">225/45R17 tires</Link>
-      </p>
-    </>
+    <p>
+      <Link href="/tires/225-45-17">225/45R17 tires</Link>
+    </p>
   );
 }

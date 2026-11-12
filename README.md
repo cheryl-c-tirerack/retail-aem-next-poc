@@ -75,7 +75,7 @@ Next.js answers the URLs AEM's header calls — see `../retail-aem-next-poc-docs
 
 | What | Why |
 | --- | --- |
-| Fixed header covers about 55 px of the page content | On AEM pages, AEM's page grid (`aem-GridColumn`) reserves the header height; the bare fragment does not |
+| ~~Fixed header covers page content~~ Fixed (base layout) | AEM's header is `position: fixed`. `HeaderSpacer.client.tsx` measures the visible `header.newHeaderBar` into `--aem-header-h`; `globals.css` pads `<main>` (and gives it a max width + side gutters) so content clears the header at every width |
 | Live Chat badge shows, but chat itself is not available | LivePerson (the chat service) is dropped |
 | ResellerRatings seal in the footer is missing | A third-party image; the CSP blocks it |
 | Host page elements look like AEM (Lato font, uppercase `h1`, no list bullets, unstyled buttons) | AEM's global CSS restyles every plain element; see `/style-probe` |
